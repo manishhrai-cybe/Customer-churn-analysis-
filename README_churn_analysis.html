@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Churn Analysis — README</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #30363d;
+    --border2: #21262d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --faint: #484f58;
+    --red: #f85149;
+    --amber: #d29922;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --teal: #39d353;
+    --accent: #f78166;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── layout ── */
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+  /* ── top bar ── */
+  .topbar {
+    border-bottom: 1px solid var(--border2);
+    padding: 14px 0;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .topbar svg { opacity: .6; }
+  .topbar .breadcrumb { color: var(--blue); }
+
+  /* ── hero ── */
+  .hero { padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--border2); margin-bottom: 2.5rem; }
+
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .02em;
+    border: 1px solid;
+  }
+  .badge-excel  { color: #3fb950; border-color: #238636; background: rgba(35,134,54,.12); }
+  .badge-data   { color: #58a6ff; border-color: #1f6feb; background: rgba(31,111,235,.12); }
+  .badge-churn  { color: #f85149; border-color: #da3633; background: rgba(218,54,51,.12); }
+  .badge-dash   { color: #d29922; border-color: #9e6a03; background: rgba(158,106,3,.12); }
+  .badge-seg    { color: #bc8cff; border-color: #8957e5; background: rgba(137,87,229,.12); }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin-bottom: .75rem;
+  }
+  h1 span { color: var(--accent); }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.65;
+    border-left: 3px solid var(--border);
+    padding-left: 1rem;
+    font-style: italic;
+  }
+
+  /* ── stat row ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 2.5rem 0;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    text-align: center;
+  }
+  .stat-card .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-card .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-family: 'DM Mono', monospace; }
+
+  /* ── sections ── */
+  .section { margin-bottom: 2.5rem; }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    color: var(--text);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── feature grid ── */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    transition: border-color .15s;
+  }
+  .feature-card:hover { border-color: var(--border); }
+  .feature-card .fc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue);
+    margin-bottom: 4px;
+    letter-spacing: .02em;
+  }
+  .feature-card p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  /* ── file tree ── */
+  .file-tree {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    overflow-x: auto;
+  }
+  .ft-file { color: var(--blue); }
+  .ft-root { color: var(--accent); font-weight: 500; }
+  .ft-comment { color: var(--faint); }
+  .ft-branch { color: var(--faint); }
+
+  /* ── risk formula ── */
+  .formula-block {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .formula-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+    padding: .6rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot-r { background: #ff5f56; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #27c93f; }
+  .formula-body {
+    padding: 1.25rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--text);
+  }
+  .fv { color: var(--purple); }
+  .fw { color: var(--amber); font-weight: 500; }
+  .fc { color: var(--faint); font-style: italic; }
+  .fop { color: var(--accent); }
+
+  /* ── risk bands ── */
+  .risk-bands { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1.25rem; }
+  .band {
+    border-radius: 8px;
+    padding: .9rem 1.1rem;
+    border: 1px solid;
+  }
+  .band-crit  { background: rgba(248,81,73,.08); border-color: rgba(248,81,73,.3); }
+  .band-high  { background: rgba(210,153,34,.08); border-color: rgba(210,153,34,.3); }
+  .band-safe  { background: rgba(63,185,80,.08); border-color: rgba(63,185,80,.3); }
+  .band .score { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .band-crit .score { color: var(--red); }
+  .band-high .score { color: var(--amber); }
+  .band-safe .score { color: var(--green); }
+  .band .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: 3px; }
+
+  /* ── skills table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left;
+    padding: .65rem 1rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  td {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .skill-tag {
+    display: inline-block;
+    background: rgba(88,166,255,.1);
+    color: var(--blue);
+    border: 1px solid rgba(88,166,255,.25);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── steps ── */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 10px; }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: .9rem 1.25rem;
+  }
+  .step-num {
+    counter-increment: step;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 22px;
+    padding-top: 1px;
+  }
+  .step-num::before { content: counter(step) "."; }
+  .step p { font-size: 14px; color: var(--muted); line-height: 1.55; }
+  .step code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+  }
+
+  /* ── kpi list ── */
+  .kpi-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: .85rem 1.1rem;
+    font-size: 13px;
+  }
+  .kpi-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex-shrink: 0; }
+  .kpi-item strong { color: var(--text); font-weight: 500; display: block; margin-bottom: 2px; }
+  .kpi-item span { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  /* ── footer ── */
+  .footer {
+    border-top: 1px solid var(--border2);
+    padding-top: 1.5rem;
+    margin-top: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--faint);
+    font-family: 'DM Mono', monospace;
+  }
+  .tech-stack { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tech { padding: 3px 9px; border: 1px solid var(--border2); border-radius: 4px; color: var(--muted); }
+
+  /* ── table wrapper ── */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
+
+  @media (max-width: 600px) {
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .risk-bands { grid-template-columns: 1fr; }
+    .kpi-list { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; gap: 1rem; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- top bar -->
+  <div class="topbar">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/></svg>
+    <span class="breadcrumb">your-username</span> / <span class="breadcrumb">customer-churn-analysis</span>
+    &nbsp;·&nbsp; README.md
+  </div>
+
+  <!-- hero -->
+  <div class="hero">
+    <div class="badges">
+      <span class="badge badge-excel">Excel</span>
+      <span class="badge badge-data">Data Analysis</span>
+      <span class="badge badge-churn">Churn Prediction</span>
+      <span class="badge badge-dash">Dashboard</span>
+      <span class="badge badge-seg">Segmentation</span>
+    </div>
+    <h1>📊 Customer <span>Churn</span> Analysis</h1>
+    <p class="hero-sub">An end-to-end Excel analytics project to identify at-risk customers, quantify churn, and surface actionable retention insights — built entirely with dynamic formulas, KPI dashboards, and trend visualisations.</p>
+  </div>
+
+  <!-- stats -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <span class="num" style="color:var(--blue)">5</span>
+      <span class="lbl">Excel Sheets</span>
+    </div>
+    <div class="stat-card">
+      <span class="num" style="color:var(--green)">90</span>
+      <span class="lbl">Live Formulas</span>
+    </div>
+    <div class="stat-card">
+      <span class="num" style="color:var(--amber)">8</span>
+      <span class="lbl">KPI Cards</span>
+    </div>
+    <div class="stat-card">
+      <span class="num" style="color:var(--red)">0</span>
+      <span class="lbl">Formula Errors</span>
+    </div>
+  </div>
+
+  <!-- overview -->
+  <div class="section">
+    <h2>Project Overview</h2>
+    <p style="color:var(--muted); font-size:14.5px; line-height:1.75;">Customer churn is one of the most expensive problems a subscription business faces — acquiring a new customer costs <strong style="color:var(--text)">5–7× more</strong> than retaining one. This project builds a full analytics pipeline in Excel: from raw customer data through weighted risk scoring, multi-dimensional segmentation, and a management-ready dashboard — without any external tools or code.</p>
+  </div>
+
+  <!-- features -->
+  <div class="section">
+    <h2>Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-title">CHURN RISK SCORING</div>
+        <p>Weighted heuristic (0–100) combining inactivity, NPS, support tickets, payment failures, and customer tenure.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">KPI DASHBOARD</div>
+        <p>8 live KPI cards tracking Churn Rate, Retention Rate, At-Risk count, and Average Risk Score — all driven by formulas.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">HIGH-RISK WATCHLIST</div>
+        <p>Auto-filtered view of customers with Risk Score ≥ 40, sorted by severity and flagged CRITICAL or HIGH.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">12-MONTH TREND ANALYSIS</div>
+        <p>Bar and line charts tracking new vs churned customers and monthly churn rate across a full year.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">SEGMENTATION</div>
+        <p>Risk breakdown by Segment (Enterprise / SMB / Startup / Consumer) and Contract Type, with a status pie chart.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">ZERO FORMULA ERRORS</div>
+        <p>All 90 formulas verified and recalculated via LibreOffice. Every cell reference is correct and tested.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- file structure -->
+  <div class="section">
+    <h2>File Structure</h2>
+    <div class="file-tree">
+      <span class="ft-root">customer_churn_analysis.xlsx</span><br>
+      <span class="ft-branch">├──</span> <span class="ft-file">Customer Data</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment"># 30 customers · risk scores · status tags</span><br>
+      <span class="ft-branch">├──</span> <span class="ft-file">KPI Summary</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment"># 8 KPI cards · segment breakdown table</span><br>
+      <span class="ft-branch">├──</span> <span class="ft-file">High-Risk Customers</span>&nbsp;<span class="ft-comment"># watchlist sorted by severity</span><br>
+      <span class="ft-branch">├──</span> <span class="ft-file">Trend Analysis</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment"># 12-month table · bar &amp; line charts</span><br>
+      <span class="ft-branch">└──</span> <span class="ft-file">Segmentation</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-comment"># cross-tab by segment &amp; contract · pie chart</span>
+    </div>
+  </div>
+
+  <!-- risk score -->
+  <div class="section">
+    <h2>Churn Risk Score</h2>
+    <div class="formula-block">
+      <div class="formula-header">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        risk_score.py
+      </div>
+      <div class="formula-body">
+Risk = <span class="fv">(Days Inactive</span> / 120<span class="fv">)</span> &times; <span class="fw">30</span>&nbsp;&nbsp;&nbsp;<span class="fc"># inactivity — highest weight</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="fv">(Support Tickets</span> / 15<span class="fv">)</span> &times; <span class="fw">20</span>&nbsp;<span class="fc"># frustration signal</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="fv">(Payment Failures</span> / 5<span class="fv">)</span> &times; <span class="fw">25</span>&nbsp;&nbsp;<span class="fc"># billing risk</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="fv">(Low NPS</span> / 10<span class="fv">)</span> &times; <span class="fw">15</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fc"># dissatisfaction</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="fv">(1 &minus; Tenure</span> / 72<span class="fv">)</span> &times; <span class="fw">10</span>&nbsp;&nbsp;<span class="fc"># new customer fragility</span>
+      </div>
+    </div>
+    <div class="risk-bands">
+      <div class="band band-crit">
+        <div class="score">Score ≥ 70</div>
+        <div class="label">🔴 Critical — Churned</div>
+      </div>
+      <div class="band band-high">
+        <div class="score">Score 40–69</div>
+        <div class="label">🟠 High Risk — At Risk</div>
+      </div>
+      <div class="band band-safe">
+        <div class="score">Score &lt; 40</div>
+        <div class="label">🟢 Healthy — Retained</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- skills -->
+  <div class="section">
+    <h2>Skills Demonstrated</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="skill-tag">Lookup Functions</span></td>
+            <td style="color:var(--muted)">COUNTIF, COUNTIFS, AVERAGEIF pulling dynamic values across sheets</td>
+          </tr>
+          <tr>
+            <td><span class="skill-tag">Segmentation</span></td>
+            <td style="color:var(--muted)">Risk distribution sliced by customer segment and contract type</td>
+          </tr>
+          <tr>
+            <td><span class="skill-tag">Trend Analysis</span></td>
+            <td style="color:var(--muted)">12-month churn and retention tracking with embedded charts</td>
+          </tr>
+          <tr>
+            <td><span class="skill-tag">Dashboard Design</span></td>
+            <td style="color:var(--muted)">Dark-themed KPI cards with semantic colour coding (red / amber / green)</td>
+          </tr>
+          <tr>
+            <td><span class="skill-tag">Risk Scoring</span></td>
+            <td style="color:var(--muted)">Weighted multi-factor heuristic model combining 5 behavioural signals</td>
+          </tr>
+          <tr>
+            <td><span class="skill-tag">Conditional Formatting</span></td>
+            <td style="color:var(--muted)">Status-coded cells that update automatically as risk scores change</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- how to use -->
+  <div class="section">
+    <h2>How to Use</h2>
+    <div class="steps">
+      <div class="step"><div class="step-num"></div><p>Download <code>customer_churn_analysis.xlsx</code> from this repository.</p></div>
+      <div class="step"><div class="step-num"></div><p>Open in <strong style="color:var(--text); font-weight:500;">Microsoft Excel</strong> or <strong style="color:var(--text); font-weight:500;">Google Sheets</strong>.</p></div>
+      <div class="step"><div class="step-num"></div><p>Replace the rows in the <code>Customer Data</code> sheet with your own customer records.</p></div>
+      <div class="step"><div class="step-num"></div><p>All KPIs, charts, risk scores, and the watchlist update <strong style="color:var(--text); font-weight:500;">automatically</strong> via live formulas — no manual recalculation needed.</p></div>
+    </div>
+  </div>
+
+  <!-- kpis -->
+  <div class="section">
+    <h2>Key KPIs Tracked</h2>
+    <div class="kpi-list">
+      <div class="kpi-item"><div class="kpi-dot"></div><div><strong>Churn Rate</strong><span>Churned ÷ Total Customers</span></div></div>
+      <div class="kpi-item"><div class="kpi-dot"></div><div><strong>Retention Rate</strong><span>Retained ÷ Total Customers</span></div></div>
+      <div class="kpi-item"><div class="kpi-dot"></div><div><strong>High-Risk Customers</strong><span>Risk Score ≥ 40</span></div></div>
+      <div class="kpi-item"><div class="kpi-dot"></div><div><strong>Customer Lifetime Value</strong><span>Avg Revenue × (1 ÷ Churn Rate)</span></div></div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <div class="footer">
+    <div>Built with</div>
+    <div class="tech-stack">
+      <span class="tech">Microsoft Excel</span>
+      <span class="tech">openpyxl</span>
+      <span class="tech">LibreOffice</span>
+      <span class="tech">Python</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
